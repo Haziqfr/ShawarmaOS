@@ -13,7 +13,7 @@ main:
   hlt
   jmp .halt
 
-msg: db "I am stage2 I am alive", 0
+msg: db "I am stage2, I am alive", 0
 
 puts:
   push si

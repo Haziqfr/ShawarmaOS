@@ -50,6 +50,8 @@ $(BUILD_DIR)/main_floppy.img: bootloader
 	dd if=/dev/zero of=$(BUILD_DIR)/main_floppy.img bs=512 count=2880 status=progress
 	dd if=$(BUILD_DIR)/stage1.bin of=$(BUILD_DIR)/main_floppy.img conv=notrunc
 	dd if=$(BUILD_DIR)/stage2.bin of=$(BUILD_DIR)/main_floppy.img seek=1 conv=notrunc bs=512
+
+
 #	cp $(BUILD_DIR)/stage1.bin $(BUILD_DIR)/main_floppy.img
 #	truncate -s 1440k $(BUILD_DIR)/main_floppy.img
 

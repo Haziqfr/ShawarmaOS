@@ -47,6 +47,9 @@ main:
   call puts
 
   jmp read
+
+
+
 read:
 
   mov ax, 0x0000  ; segement
