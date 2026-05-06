@@ -1,25 +1,23 @@
-
-
 # ShawarmaOS
 
-![License](https://img.shields.io/github/license/your-username/shawarmaos)
-![Stars](https://img.shields.io/github/stars/your-username/shawarmaos)
-![Forks](https://img.shields.io/github/forks/your-username/shawarmaos)
-![Issues](https://img.shields.io/github/issues/your-username/shawarmaos)
+![License](https://img.shields.io/github/license/Haziqfr/Shawarma-OS)
+![Stars](https://img.shields.io/github/stars/Haziqfr/Shawarma-OS)
+![Forks](https://img.shields.io/github/forks/Haziqfr/Shawarma-OS)
+![Issues](https://img.shields.io/github/issues/Haziqfr/Shawarma-OS)
 
 ---
 
 ## About The Project
 
-ShawarmaOS is a from-scratch operating system built entirely from the ground up. It includes a custom bootloader, a monolithic kernel (ShawarmaKernel), and a partially developed C standard library (libc). The project is focused on learning and exploring low-level system design, operating system architecture, and hardware interaction.
+ShawarmaOS is a from-scratch operating system built entirely from the ground up. It includes a custom bootloader, a monolithic kernel (ShawarmaKernel), and a partially developed C standard library (libc). The project is focused on learning and exploring low-level system design, operating system architecture, and how software interacts with hardware at a fundamental level.
 
 ---
 
 ## Features
 
-- Custom bootloader (from scratch)
+- Custom bootloader (written from scratch)
 - BIOS boot support (x86)
-- Very early low-level C runtime experimentation
+- Early low-level C runtime experimentation
 
 ---
 
@@ -33,33 +31,35 @@ ShawarmaOS is a from-scratch operating system built entirely from the ground up.
 - Basic device drivers
 - Simple user-space environment
 
+---
+
 ## Status
 
 ⚠️ **Early Development Stage**
 
-ShawarmaOS is currently in very early development and only supports BIOS booting with minimal kernel functionality.
+ShawarmaOS is currently in very early development. At this stage, it only supports BIOS booting and contains minimal system functionality.
 
 ---
 
 ## Goals
 
-- Learn about the process of making an operating system from scratch
-- Learn the basics of systems programming
-- Learn how to create an operating system from scratch from booting onwards
-- Gain hands-on experience with kernel and runtime environment development
+- Understand how an operating system is built from the ground up  
+- Learn the fundamentals of low-level systems programming  
+- Gain hands-on experience with the full boot-to-kernel development process  
+- Build a practical understanding of operating system internals and runtime systems  
 
 ---
-
 
 ## Build & Run
 
 ### Requirements
-- `gcc` or `clang`
-- `nasm`
-- `make`
-- `qemu`
+- GCC or Clang  
+- NASM  
+- Make  
+- QEMU  
 
 ### Build
+
 ```bash
 make
 ```
@@ -73,9 +73,7 @@ make run
 ```bash
 make clean
 ```
-
 ---
-
 ## Support
 
 If you find this project interesting, consider starring the repository.
