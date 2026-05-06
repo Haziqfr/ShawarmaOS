@@ -13,13 +13,14 @@
 
 ShawarmaOS is a from-scratch operating system built entirely from the ground up. It includes a custom bootloader, a monolithic kernel (ShawarmaKernel), and a partially developed C standard library (libc). The project is focused on learning and exploring low-level system design, operating system architecture, and how software interacts with hardware at a fundamental level.
 
+
 ---
 
-## License
+## Status
 
-This project is licensed under the [GNU General Public License v2.0.](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html#SEC1)
+⚠️ **Early Development Stage**
 
-See the `LICENSE` file in this repository for full details.
+ShawarmaOS is currently in very early development. At this stage, it only supports BIOS booting and contains minimal system functionality.
 
 ---
 
@@ -43,13 +44,6 @@ See the `LICENSE` file in this repository for full details.
 
 ---
 
-## Status
-
-⚠️ **Early Development Stage**
-
-ShawarmaOS is currently in very early development. At this stage, it only supports BIOS booting and contains minimal system functionality.
-
----
 
 ## Goals
 
@@ -83,6 +77,15 @@ make run
 ```bash
 make clean
 ```
+---
+
+## License
+
+This project is licensed under the [GNU General Public License v2.0.](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html#SEC1)
+
+See the `LICENSE.md` file in this repository for full details.
+
+
 ---
 ## Support
 
