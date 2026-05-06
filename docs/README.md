@@ -15,6 +15,14 @@ ShawarmaOS is a from-scratch operating system built entirely from the ground up.
 
 ---
 
+## License
+
+This project is licensed under the [GNU General Public License v2.0.](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html#SEC1)
+
+See the `LICENSE` file in this repository for full details.
+
+---
+
 ## Features
 
 - Custom bootloader (written from scratch)
