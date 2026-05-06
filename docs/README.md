@@ -1,9 +1,11 @@
 # ShawarmaOS
 
-![License](https://img.shields.io/github/license/Haziqfr/Shawarma-OS)
-![Stars](https://img.shields.io/github/stars/Haziqfr/Shawarma-OS)
+![GitHub License](https://img.shields.io/github/license/Haziqfr/Shawarma-OS?style=flat)
+![Stars](https://img.shields.io/github/stars/Haziqfr/Shawarma-OS?style=flat)
 ![Forks](https://img.shields.io/github/forks/Haziqfr/Shawarma-OS)
 ![Issues](https://img.shields.io/github/issues/Haziqfr/Shawarma-OS)
+
+
 
 ---
 
