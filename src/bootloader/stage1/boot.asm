@@ -37,7 +37,7 @@ main:
 
   ; setup stack
   mov ss, ax
-  mov sp, 0x7C00 ; stack grows downward
+  mov sp, 0x9000 ; stack grows downward
 
   mov [boot_drive], dl
   sti
