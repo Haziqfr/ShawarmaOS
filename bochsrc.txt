@@ -14,4 +14,4 @@ magic_break: enabled=1
 log: bochsout.txt
 
 # Use the internal debugger (GUI version)
-display_library: x, options="gui_debug"
+display_library: sdl2 

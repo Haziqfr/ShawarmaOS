@@ -1,16 +1,14 @@
-ASM ?= nasm
-CC ?= gcc
-
-BUILD_DIR ?= build/
-
+ifndef SHAWARMA_OS_BUILD
+$(error Please run make from the project root.)
+endif
 
 
 .PHONY: clean
 
 
 
-$(BUILD_DIR)/stage1.bin:
-	$(ASM) -o $(BUILD_DIR)/stage1.bin -f bin boot.asm
+$(BUILD_DIR)/stage1.bin: boot.asm 
+	$(ASM) -o $@ $(ASMFLAGS) $<
 
 
 clean:
