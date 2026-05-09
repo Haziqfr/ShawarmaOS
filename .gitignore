@@ -1,5 +1,7 @@
 build/
 
+.idea/
+
 
 #Bochs (formally called Box)
 ./bochsout.txt
