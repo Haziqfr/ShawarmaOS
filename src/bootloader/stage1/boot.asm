@@ -1,8 +1,9 @@
 org 0x7C00
 bits 16
 
-start: 
+start:
   jmp main
+
 
 puts:
   push si
@@ -12,7 +13,7 @@ puts:
   lodsb       ; loads next char in al
   or al, al
   jz .done
-  
+
 
   mov ah, 0x0E
   int 0x10
@@ -31,7 +32,7 @@ main:
 
   cli
   ; setup data segement
-  mov ax, 0     ; we can't write directly to data segement
+  xor ax, ax     ; we can't write directly to data segement
   mov ds, ax
   mov es, ax
 
@@ -52,23 +53,38 @@ main:
 
 read:
 
+    mov si, 3
+
+.retry:
+
   mov ax, 0x0000  ; segement
   mov es, ax
-  mov ah, 0x02    ; bios function: read sector
-  mov al, 1       ; read sector 1
-  mov ch, 0
-  mov cl, 2
+  mov ax, 0x0201    ; AX=02h, AL=01h
+;  mov al, 1       ; read sector 1
+  mov cx, 0x0002
+;  mov cl, 2
   mov dl, [boot_drive]    ; Drive = first floppy
   mov dh, 0       ; head number
   mov bx, 0x7E00
+
+
   int 13h
-  jc error
+  jnc .ok
+  jc .fail
 
-  mov al, [0x7E00]
-  cmp al, 0
-  je error
 
-  jmp 0x0000:0x7E00
+.fail:
+  dec si
+  jnz .retry
+
+  jmp error
+
+.ok:
+
+  ; Validation before jump
+  cmp word [0x7E00], 0xBEEF
+  jne error
+  jmp far [0x7e04]
 
 
 

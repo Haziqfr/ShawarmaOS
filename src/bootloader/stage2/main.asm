@@ -1,8 +1,19 @@
 org 0x7E00
 bits 16
 
+
+magic  dw 0xBEEF
+version dw 1
+
+
+entry_headers:
+ dw main ; location of main/offset
+ dw 0 ; segment
+
+
+
 main:
-  mov ax, 0x0000
+  xor ax, ax
   mov ds, ax
   mov si, msg
   call puts
