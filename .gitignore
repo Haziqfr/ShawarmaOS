@@ -1,6 +1,10 @@
 build/
 
+
+# Editor specific files
 .idea/
+.zed/
+.vscode/
 
 
 #Bochs (formally called Box)
