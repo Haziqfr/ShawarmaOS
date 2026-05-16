@@ -19,6 +19,9 @@ entry_headers:
 main:
   xor ax, ax    ; clear ax
   mov ds, ax    ; set data segment
+  mov es, ax    ; keep es synchronize with ds
+
+  
   mov si, msg   ; load message
   call puts     ; call print function
 
@@ -32,12 +35,13 @@ main:
   call enable_a20
 
 
+  call get_a20_state
   cmp ax, 0    
   je .halt    ; halt if A20 can't be enabled
 
 
 .continue:
-  cli    ; disable all interrupts
+  cli                      ; disable all interrupts
   lgdt [gdt_descriptor]    ; load gdt table address to GDTR
   mov eax, cr0
   or  eax, 1               
@@ -119,7 +123,7 @@ enable_a20:
     cmp ax, 1
     jne .fast
 
-    ret                    ; return if succeed
+    ret                ; return if succeed
 
 
 
