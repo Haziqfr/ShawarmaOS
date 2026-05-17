@@ -124,9 +124,9 @@ read:
 .ok:
 
   ; Validation before jump
-  cmp word [0x7E00], 0xBEEF
-  jne error
-  jmp far [0x7e04]
+  ;cmp word [0x7E00], 0xBEEF
+  ;jne error
+  jmp far 0:0x7e00
 
 
 
