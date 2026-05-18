@@ -32,7 +32,7 @@ main:
 
   cli
   cld    ; clear direction flag so loadsb behaves properly
-  
+
   ; setup data segement
   xor ax, ax     ; we can't write directly to data segement
   mov ds, ax
@@ -46,12 +46,26 @@ main:
   sti
 
 
-  mov si, msg
+  mov si, msg_boot
   call puts
 
   mov al, [boot_drive]
   cmp al, 0x80
-  jae read
+  jae .hard_drive
+
+
+.floppy:
+    call probe_floppy
+    jmp chs_read
+
+
+.hard_drive:
+    call get_Hdisk_geometry
+    
+    call check_lba
+    jc chs_read
+
+    jmp chs_read
 
 
 probe_floppy:
@@ -60,7 +74,7 @@ probe_floppy:
 .probe_loop:
   mov cl, [si]
   or cl, cl
-  jz error
+  jz error_nf
 
   push ax
   xor ax, ax
@@ -89,25 +103,60 @@ probe_floppy:
 
 .probe_success:
   mov [sectors_per_track], cl
-  jmp read
+  jmp chs_read
 
 
+; out:
+;     CF - state (0 - enabled, 1 - disabled)
+check_lba:
 
-read:
+    mov ah, 0x41
+    mov bx, 0x55AA
+    mov dl, [boot_drive]
+    int 0x13
+
+    jc .error_LBA
+
+    cmp bx, 0xAA55
+    jne .error_LBA
+
+    test cx, 1
+    jz .error_LBA
+
+    mov si, msg_LBA
+    call puts
+
+    clc
+    ret
+
+.error_LBA:
+   mov si, err_LBA_msg
+   call puts
+
+   stc
+   ret
+
+chs_read:
+
+
 
     mov si, 3
 
 .retry:
 
+  mov ax, 1
+  call lba_to_chs
+
   mov ax, 0x0000    ; segement
   mov es, ax
+  mov bx, 0x7E00
+  
   mov ax, 0x0201    ; AH=02h, AL=01h
 ;  mov al, 1        ; read sector 1
-  mov cx, 0x0002
+;  mov cx, 0x0002    ; CH=0x00 (Cylinder 0), CL=0x02 (Sector 2)
 ;  mov cl, 2
   mov dl, [boot_drive]    ; Drive = first floppy
-  mov dh, 0         ; head number
-  mov bx, 0x7E00
+;  mov dh, 0         ; head number
 
 
   int 13h
@@ -119,7 +168,7 @@ read:
   dec si
   jnz .retry
 
-  jmp error
+  jmp error_nf
 
 .ok:
 
@@ -133,22 +182,88 @@ read:
 .halt:
   jmp .halt
 
+get_Hdisk_geometry:
 
-error:
+    mov ah, 0x08
+    mov dl, [boot_drive]
+    int 0x13
+    jc error_geo
 
-  mov si, err_msg
+    inc dh
+
+    mov [total_heads], dh
+
+    and cl, 00111111b
+
+    mov [sectors_per_track], cl
+
+    ret
+
+
+
+
+lba_to_chs:
+    push bx
+    push ax                         ; Save original LBA
+
+    xor dx, dx                      ; Clear DX for division (DX:AX)
+    mov bx, [sectors_per_track]     ; Load your dynamically probed variable
+    div bx                          ; AX = LBA / SPT, DX = LBA % SPT
+
+    inc dx                          ; Sector = (LBA % SPT) + 1
+    mov cl, dl                      ; CL = Sector number
+
+    xor dx, dx                      ; Clear DX again
+    xor bx, bx
+    mov bl, [total_heads]           ; Number of heads for a standard floppy
+    div bx                          ; AX = Cylinder (AX/2), DX = Head (AX%2)
+
+    mov dh, dl                      ; DH = Head
+    mov ch, al                      ; CH = Cylinder (lower 8 bits)
+
+    ; Optional: If cylinder > 255, its high bits go into CL bits 6-7.
+    ; For standard floppies, cylinder never exceeds 80, so CH is completely fine.
+
+    pop ax
+    pop bx
+    ret
+
+
+error_nf:
+
+  mov si, err_NF_msg
   call puts
 
-boot_drive: db 0
-sectors_per_track: db 0
-floppy_selectors: db 36, 18, 15, 9, 0
-
-err_msg: db "Not found", 0x0D, 0x0A, 0
-
 .halt:
-  jmp .halt
-  
-msg: db "Booting...", 0x0D, 0x0A, 0
+    hlt
+    jmp .halt
+
+error_geo:
+    mov si, err_GEO_msg
+    call puts
+
+.halt: hlt
+    jmp .halt
+
+
+; DATA
+
+boot_drive: db 0
+sectors_per_track: dw 0
+floppy_selectors: db 36, 18, 15, 9, 0
+total_heads: dw 2
+
+
+
+; Strings
+; errors_msg
+err_NF_msg: db "Not found", 0x0D, 0x0A, 0
+err_GEO_msg: db "Unable to get disk geometry", 0
+err_LBA_msg: db "(!) LBA NOT supported. Fallbacking to CHS", 0x0D, 0x0A, 0
+
+; msg
+msg_boot: db "Booting...", 0x0D, 0x0A, 0
+msg_LBA: db "LBA supported", 0x0D, 0x0A, 0
 
 
 times 510-($-$$) db 0
