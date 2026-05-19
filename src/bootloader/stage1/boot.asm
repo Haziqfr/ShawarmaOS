@@ -57,6 +57,7 @@ main:
 .floppy:
     call probe_floppy
     jmp chs_read
+    
 
 
 .hard_drive:
@@ -72,15 +73,18 @@ probe_floppy:
   mov si, floppy_selectors
 
 .probe_loop:
-  mov cl, [si]
-  or cl, cl
-  jz error_nf
 
-  push ax
-  xor ax, ax
+  push ax    ; save ax
+  ; reset first
+  mov ah, 0x00
   mov dl, [boot_drive]
   int 0x13
   pop ax
+
+  mov cl, [si]
+  or cl, cl
+  jz error_nf_floppy
+
 
   mov ax, 0x0201
   mov ch, 0
@@ -90,7 +94,7 @@ probe_floppy:
   push es
   xor bx, bx
   mov es, bx
-  mov bx, 0x7E00
+  mov bx, 0x0600
   int 0x13
   pop es
 
@@ -102,8 +106,10 @@ probe_floppy:
 
 
 .probe_success:
-  mov [sectors_per_track], cl
-  jmp chs_read
+  xor ax, ax
+  mov al, cl
+  mov [sectors_per_track], ax
+  ret
 
 
 ; out:
@@ -138,12 +144,12 @@ check_lba:
 
 chs_read:
 
-
-
     mov si, 3
 
 .retry:
 
+  push si
+  
   mov ax, 1
   call lba_to_chs
 
@@ -165,22 +171,27 @@ chs_read:
 
 
 .fail:
+
+  xor ax, ax
+  mov dl, [boot_drive]
+  int 0x13
+
+  pop si
   dec si
   jnz .retry
 
-  jmp error_nf
+  jmp error_nf_stage
 
 .ok:
 
+  pop si
   ; Validation before jump
   ;cmp word [0x7E00], 0xBEEF
   ;jne error
+  mov dl, [boot_drive]
   jmp far 0:0x7e00
 
-
-
-.halt:
-  jmp .halt
+  jmp halt
 
 get_Hdisk_geometry:
 
@@ -191,11 +202,14 @@ get_Hdisk_geometry:
 
     inc dh
 
-    mov [total_heads], dh
+    xor ax, ax
+    mov al, dh
+    mov [total_heads], ax
 
+    xor ax, ax
     and cl, 00111111b
-
-    mov [sectors_per_track], cl
+    mov al, cl
+    mov [sectors_per_track], ax
 
     ret
 
@@ -229,41 +243,58 @@ lba_to_chs:
     ret
 
 
-error_nf:
+DAP:
+    
 
-  mov si, err_NF_msg
-  call puts
 
-.halt:
-    hlt
-    jmp .halt
+
+
+
+error_nf_floppy:
+
+    mov si, err_NFF_msg
+    call puts
+
+    jmp halt
+
+error_nf_stage:
+
+    mov si, err_NFS_msg
+    call puts
+
+    jmp halt
 
 error_geo:
     mov si, err_GEO_msg
     call puts
 
-.halt: hlt
-    jmp .halt
+    jmp halt
+
+halt:
+   hlt
+   jmp halt
 
 
 ; DATA
-
-boot_drive: db 0
-sectors_per_track: dw 0
 floppy_selectors: db 36, 18, 15, 9, 0
+boot_drive: db 0
+
+align 2
+sectors_per_track: dw 0
 total_heads: dw 2
 
 
 
 ; Strings
 ; errors_msg
-err_NF_msg: db "Not found", 0x0D, 0x0A, 0
-err_GEO_msg: db "Unable to get disk geometry", 0
-err_LBA_msg: db "(!) LBA NOT supported. Fallbacking to CHS", 0x0D, 0x0A, 0
+err_NFF_msg: db "NFF", 0    ; Not Found Floppy
+err_NFS_msg: db "NFS", 0    ; Not Found Stage
+err_GEO_msg: db "Unable to get disk geo", 0
+err_LBA_msg: db "LBA 3, Fallbacking to CHS", 0x0D, 0x0A, 0  ; exit code[3]
 
 ; msg
 msg_boot: db "Booting...", 0x0D, 0x0A, 0
-msg_LBA: db "LBA supported", 0x0D, 0x0A, 0
+msg_LBA: db "LBA 2", 0x0D, 0x0A, 0    ; exit code[2]
 
 
 times 510-($-$$) db 0

@@ -17,6 +17,7 @@ DATA_SEG equ data_segment_descriptor - gdt_start    ; data segment pointer
 
 
 main:
+  mov [boot_drive], dl
   xor ax, ax    ; clear ax
   mov ds, ax    ; set data segment
   mov es, ax    ; keep es synchronize with ds
@@ -259,6 +260,8 @@ gdt_descriptor:
 
 
 ; DATA
+boot_drive: db 0
+
 msg: db "I am stage2, I am alive", 0x0D, 0x0A, 0
 
 times 512-($-$$) db 0

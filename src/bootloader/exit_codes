@@ -1,0 +1,4 @@
+0 = success
+1 = failed
+2 = available
+3 = unavailable
