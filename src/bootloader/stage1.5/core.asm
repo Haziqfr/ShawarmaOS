@@ -262,6 +262,6 @@ gdt_descriptor:
 ; DATA
 boot_drive: db 0
 
-msg: db "I am stage2, I am alive", 0x0D, 0x0A, 0
+msg: db "I am stage1.5, I am alive", 0x0D, 0x0A, 0
 
 times 512-($-$$) db 0
