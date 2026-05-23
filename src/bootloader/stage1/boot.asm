@@ -66,7 +66,9 @@ main:
     call check_lba
     jc chs_read
 
-    jmp chs_read
+    jmp lba_read
+
+    jmp halt
 
 
 probe_floppy:
