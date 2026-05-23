@@ -243,10 +243,22 @@ lba_to_chs:
     ret
 
 
-DAP:
+
     
 
+lba_read:
+    xor ax, ax
+    mov ds, ax
+    mov si, DAP
+    mov dl, [boot_drive]
+    mov ah, 0x42
+    int 13h
 
+    jc error_nf_stage
+
+.success:
+    mov dl, [boot_drive]
+    jmp far 0:0x7E00
 
 
 
@@ -276,6 +288,14 @@ halt:
 
 
 ; DATA
+DAP:
+    db 0x10      ; size of DAP, 16 bytes
+    db 0x00      ; reserved, always 0
+    dw 0x0001    ; sectors to read
+    dw 0x7E00, 0x0000        ; loading address
+    dq 0x0000000000000001    ; sector number
+
+
 floppy_selectors: db 36, 18, 15, 9, 0
 boot_drive: db 0
 
