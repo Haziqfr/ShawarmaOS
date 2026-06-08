@@ -2,7 +2,7 @@ org 0x7C00
 bits 16
 
 start:
-  jmp far 0:main
+  jmp 0:main
 
 
 puts:
@@ -190,8 +190,9 @@ chs_read:
   ; Validation before jump
   ;cmp word [0x7E00], 0xBEEF
   ;jne error
+  mov ax, 0x03    ; exit_code[3]
   mov dl, [boot_drive]
-  jmp far 0:0x7e00
+  jmp 0:0x7e00
 
   jmp halt
 
@@ -259,8 +260,9 @@ lba_read:
     jc error_nf_stage
 
 .success:
+    mov ax, 0x02    ; 1 - LBA supported
     mov dl, [boot_drive]
-    jmp far 0:0x7E00
+    jmp 0:0x7E00
 
 
 
