@@ -190,7 +190,7 @@ chs_read:
   ; Validation before jump
   ;cmp word [0x7E00], 0xBEEF
   ;jne error
-  mov ax, 0x03    ; exit_code[3]
+  mov al, 0x03    ; exit_code[3]
   mov dl, [boot_drive]
   jmp 0:0x7e00
 
@@ -260,7 +260,7 @@ lba_read:
     jc error_nf_stage
 
 .success:
-    mov ax, 0x02    ; 1 - LBA supported
+    mov al, 0x02    ; 1 - LBA supported
     mov dl, [boot_drive]
     jmp 0:0x7E00
 
