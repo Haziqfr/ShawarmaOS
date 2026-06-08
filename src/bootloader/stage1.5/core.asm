@@ -17,7 +17,7 @@ DATA_SEG equ data_segment_descriptor - gdt_start    ; data segment pointer
 
 
 main:
-  mov [lba_status], ax
+  mov [lba_status], al
   mov [boot_drive], dl
   xor ax, ax    ; clear ax
   mov ds, ax    ; set data segment
@@ -43,8 +43,8 @@ main:
 
 
 .continue:
- mov ax, [lba_status]
- cmp ax, 2
+ mov al, [lba_status]
+ cmp al, 2
  je .lba_read
 
 
@@ -70,6 +70,7 @@ main:
 
 .stage_finale:
   cli                      ; disable all interrupts
+  mov bl, [lba_status]     ; pass the value of lba_status to stage2
   lgdt [gdt_descriptor]    ; load gdt table address to GDTR
   mov eax, cr0
   or  eax, 1               
@@ -284,7 +285,7 @@ DAP:
 
 
 boot_drive: db 0
-lba_status: dw 0
+lba_status: db 0
 
 msg: db "I am stage1.5, I am alive", 0x0D, 0x0A, 0
 
