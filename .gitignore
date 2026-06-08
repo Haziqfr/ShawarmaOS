@@ -1,5 +1,10 @@
 build/
 
+# Unwanted files
+*.patch
+*.bak
+*.log
+*.backup
 
 # Editor specific files
 .idea/
