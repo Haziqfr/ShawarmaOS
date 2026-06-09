@@ -20,7 +20,8 @@ SRC := src
 BOOTLOADER_DIR := src/bootloader
 STAGE1_ASM_SRC := $(wildcard $(BOOTLOADER_DIR)/stage1/*.asm)
 STAGE1-5_ASM_SRC := $(wildcard $(BOOTLOADER_DIR)/stage1.5/*.asm)
-BOOTLOADER_BINS := $(BUILD_DIR)/stage1.bin $(BUILD_DIR)/stage2.bin $(BUILD_DIR)/stage1-5.bin
+KERNEL_ASM_SRC := $(wildcard $(SRC)/kernel/*.asm)
+BOOTLOADER_BINS := $(BUILD_DIR)/stage1.bin $(BUILD_DIR)/stage1-5.bin
 
 
 #
