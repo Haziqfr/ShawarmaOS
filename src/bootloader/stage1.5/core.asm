@@ -70,7 +70,6 @@ main:
 
 .stage_finale:
   cli                      ; disable all interrupts
-  mov bl, [lba_status]     ; pass the value of lba_status to stage2
   lgdt [gdt_descriptor]    ; load gdt table address to GDTR
   mov eax, cr0
   or  eax, 1               
