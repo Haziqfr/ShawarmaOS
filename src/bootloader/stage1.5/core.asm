@@ -51,7 +51,7 @@ main:
 .chs_read:
  mov ax, 0x0000
  mov es, ax
- mov ax, 0x0202
+ mov ax, 0x0203
  mov cx, 0x0003
  mov dh, 0
  mov dl, [boot_drive]
@@ -278,7 +278,7 @@ gdt_descriptor:
 DAP:
     db 0x10      ; size of DAP, 16 bytes
     db 0x00      ; reserved, always 0
-    dw 0x0001    ; sectors to read
+    dw 0x0003    ; sectors to read
     dw 0x9000, 0x0000        ; loading address
     dq 0x0000000000000002    ; sector number
 
