@@ -1,7 +1,9 @@
 [BITS 32]
-[org 0x9000]
 
-protected_mode_start:
+extern kernel_main
+global _start
+
+_start:
     ; setting up segment registers
     mov ax, 0x10
     mov ds, ax
@@ -13,7 +15,7 @@ protected_mode_start:
     ; setup stack (AGAIN)
     mov esp, 0x90000    ; set the current stack pointer
 
-    mov word [0xB8000], 0x0A32
+    call kernel_main
 
 
     jmp .halt
