@@ -3,4 +3,5 @@
 #
 
 clean:
-	rm -rf $(BUILD_DIR)
+	@echo "Deleting build directory..."
+	@rm -rf $(BUILD_DIR)
