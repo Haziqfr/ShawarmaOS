@@ -20,8 +20,9 @@ include mk/qemu.mk
 
 # always runs
 # 	- Creates BUILD_DIR if not created
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+always:
+	@mkdir -p $(BUILD_DIR)/kernel
+	@mkdir -p $(BUILD_DIR)/stage1.5
 
 # clean
 #  |-Removes everything from BUILD_DIR

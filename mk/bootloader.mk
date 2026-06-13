@@ -3,8 +3,8 @@
 #
 
 
-$(BUILD_DIR)/stage1.bin: $(STAGE1_ASM_SRC) | $(BUILD_DIR)
-	$(ASM) $(ASMFLAGS) $(STAGE1_ASM_SRC) -o $@
+$(BUILD_DIR)/stage1.bin: $(STAGE1_ASM_SRC) | always
+	$(AS) $(ASFLAGS) $(STAGE1_ASM_SRC) -o $@
 
 
 
@@ -13,6 +13,6 @@ $(BUILD_DIR)/stage1.bin: $(STAGE1_ASM_SRC) | $(BUILD_DIR)
 #
 
 
-$(BUILD_DIR)/stage1-5.bin: $(STAGE1-5_ASM_SRC) | $(BUILD_DIR)
-	$(ASM) $(ASMFLAGS) $(STAGE1-5_ASM_SRC) -o $@
+$(BUILD_DIR)/stage1-5.bin: $(STAGE1_5_ASM_SRC) | always
+	$(AS) $(ASFLAGS) $(STAGE1_5_ASM_SRC) -o $@
 
