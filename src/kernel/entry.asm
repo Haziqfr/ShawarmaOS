@@ -1,5 +1,6 @@
 [BITS 32]
 
+section .entry
 extern kernel_main
 global _start
 
@@ -29,4 +30,3 @@ _start:
 
 
 
-times 512-($-$$) db 0
