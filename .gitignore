@@ -5,6 +5,10 @@ build/
 *.bak
 *.log
 *.backup
+compile_commands.json
+*.bin
+*.img
+*.iso
 
 # Editor specific files
 .idea/
