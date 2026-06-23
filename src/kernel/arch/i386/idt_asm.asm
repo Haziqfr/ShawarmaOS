@@ -5,7 +5,8 @@ extern isr_handler
 
 idt_load:
     cli
-    lidt[esp + 8]
+    mov eax, [esp + 4]
+    lidt [eax]
     ret
 
 %macro ISR_NOERRCODE 1
@@ -13,7 +14,7 @@ global isr%1
 isr%1:
     cli
     push byte 0
-    push byte %1
+    push %1
     jmp isr_common_stub
 %endmacro
 
@@ -21,7 +22,7 @@ isr%1:
 global isr%1
 isr%1:
     cli
-    push byte %1
+    push %1
     jmp isr_common_stub
 %endmacro
 
@@ -61,3 +62,11 @@ isr_common_stub:
     add esp, 8
     sti
     iret
+
+global isr_stub_table
+isr_stub_table:
+%assign i 0
+%rep 256
+    dd isr%+i
+    %assign i i+1
+%endrep
