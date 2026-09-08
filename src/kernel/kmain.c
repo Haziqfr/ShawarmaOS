@@ -6,6 +6,7 @@
 #include <arch/i386/interrupt/idt.h>
 #include <drivers/video/vga.h>
 #include <mm/pmm.h>
+#include <mm/vmm.h>
 
 /*
  * Magic = crc32("ShawarmaOS Boot Protocol")
@@ -23,14 +24,24 @@ void kernel_main(BootInfo *boot)
 	pic_init();
 	kprintf("[INFO] PIC Initialized\n");
 
-	timer_init(100);
-	kprintf("[INFO] Timer Initialized\n");
-
 	serial_init();
 	kprintf("[INFO] Serial Initialized\n");
 
 	pmm_init(boot);
 	kprintf("[INFO] PMM Initialized\n");
+
+	vmm_identity_map_kernel();
+	kprintf("[INFO] Identity mapped the kernel\n");
+
+	__asm__ volatile(
+		"mov %cr0, %eax\n\t"
+		"or $0x80000000, %eax\n\t"
+		"mov %eax, %cr0\n\t"
+		);
+	kprintf("[INFO] Paging Enabled\n");
+
+	timer_init(100);
+	kprintf("[INFO] Timer Initialized\n");
 
 	__asm__ volatile("sti");
 	kprintf("[INFO] Interrupts enabled\n");
