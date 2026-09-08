@@ -6,10 +6,22 @@
 
 static void com1_irq_handler(struct regs *r);
 static void tx_out(void);
+static inline uint8_t are_interrupts_enabled(void);
+static void serial_poll_putc(char c);
 
 static volatile uint8_t tx_head = 0;
 static volatile uint8_t tx_tail = 0;
 static char tx_buffer[TX_BUFFER_SIZE];
+
+static inline uint8_t are_interrupts_enabled(void)
+{
+	uint32_t flags;
+	__asm__ volatile(
+		"pushf\n\t"
+		"pop %0" : "=r"(flags)
+		);
+	return (flags & 0x200) != 0;
+}
 
 void serial_init(void)
 {
@@ -25,6 +37,11 @@ void serial_putc(char c)
 		serial_putc('\r');
 	}
 
+	if (!are_interrupts_enabled()) {
+		serial_poll_putc(c);
+		return;
+	}
+
 	tx_buffer[tx_head] = c;
 	tx_head = (tx_head + 1) % TX_BUFFER_SIZE;
 
@@ -38,6 +55,12 @@ void serial_puts(const char *str)
 	for (int i = 0; str[i] != '\0'; i++) {
 		serial_putc(str[i]);
 	}
+}
+
+static void serial_poll_putc(char c)
+{
+	while ((inb(COM1_PORT + LSR) & 0x20) == 0);
+	outb(COM1_PORT + THR, c);
 }
 
 static void tx_out(void)
