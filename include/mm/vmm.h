@@ -7,5 +7,6 @@
 #define GLOBAL (1 << 8)
 
 void vmm_identity_map_kernel(void);
+void vmm_higher_half_map_kernel(void);
 
 #endif // MM_VMM_H

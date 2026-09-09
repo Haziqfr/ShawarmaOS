@@ -13,6 +13,8 @@
  */
 #define MAGIC 0x88FF1A3B
 
+extern void enable_paging(void);
+
 void kernel_main(BootInfo *boot)
 {
 	vga_clear();
@@ -33,11 +35,10 @@ void kernel_main(BootInfo *boot)
 	vmm_identity_map_kernel();
 	kprintf("[INFO] Identity mapped the kernel\n");
 
-	__asm__ volatile(
-		"mov %cr0, %eax\n\t"
-		"or $0x80000000, %eax\n\t"
-		"mov %eax, %cr0\n\t"
-		);
+	vmm_higher_half_map_kernel();
+	kprintf("[INFO] Higher half mapped the kernel\n");
+
+	enable_paging();
 	kprintf("[INFO] Paging Enabled\n");
 
 	timer_init(100);
