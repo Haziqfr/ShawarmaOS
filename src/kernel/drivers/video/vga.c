@@ -1,7 +1,7 @@
 #include <drivers/video/vga.h>
 #include <arch/i386/stdint.h>
 
-static uint16_t *vga = (uint16_t *)0xB8000;
+static uint16_t *vga = (uint16_t *)0xC00B8000;
 
 static uint8_t row = 0;
 static uint8_t col = 0;
