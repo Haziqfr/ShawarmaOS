@@ -13,6 +13,7 @@
  */
 #define MAGIC 0x88FF1A3B
 
+void kernel_main_high(BootInfo *boot);
 extern void enable_paging(void);
 
 void kernel_main(BootInfo *boot)
@@ -32,13 +33,13 @@ void kernel_main(BootInfo *boot)
 	pmm_init(boot);
 	kprintf("[INFO] PMM Initialized\n");
 
-	vmm_identity_map_kernel();
+	//vmm_identity_map_kernel();
 	kprintf("[INFO] Identity mapped the kernel\n");
 
-	vmm_higher_half_map_kernel();
+	//vmm_higher_half_map_kernel();
 	kprintf("[INFO] Higher half mapped the kernel\n");
 
-	enable_paging();
+	//enable_paging();
 	kprintf("[INFO] Paging Enabled\n");
 
 	timer_init(100);
@@ -47,7 +48,6 @@ void kernel_main(BootInfo *boot)
 	__asm__ volatile("sti");
 	kprintf("[INFO] Interrupts enabled\n");
 
-	serial_puts("Hello from serial\n");
 
 	if (boot->magic != MAGIC) {
 		kprintf("Invalid boot info. Go cry now\n");

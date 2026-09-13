@@ -7,8 +7,8 @@
 #define ALIGN_UP(num, align) (((num) + ((align) - 1)) & ~((align) - 1))
 #define PHYS_ADDR_LIMIT 0x100000000ULL
 
-extern char _kernel_start[];
-extern char _kernel_end[];
+extern char _kernel_phys_start[];
+extern char _kernel_phys_end[];
 
 static uint8_t *bitmap;
 static uint64_t bitmap_bytes;
@@ -55,10 +55,10 @@ void pmm_init(BootInfo *boot_info)
 		uint64_t map_end = map->addr + map->size;
 
 		if (bitmap_start + bitmap_bytes <= map_end) {
-			if (bitmap_start < (uintptr_t)_kernel_end &&
+			if (bitmap_start < (uintptr_t)_kernel_phys_end &&
 			    bitmap_start + bitmap_bytes >
-				    (uintptr_t)_kernel_start) {
-				bitmap_start = ALIGN_UP((uintptr_t)_kernel_end,
+				    (uintptr_t)_kernel_phys_start) {
+				bitmap_start = ALIGN_UP((uintptr_t)_kernel_phys_end,
 							PAGE_SIZE);
 			}
 
@@ -96,8 +96,8 @@ void pmm_init(BootInfo *boot_info)
 	}
 
 	// Reserve Kernel Image
-	uint64_t kstart_page = (uintptr_t)_kernel_start >> 12;
-	uint64_t kend_page = ((uintptr_t)_kernel_end + PAGE_SIZE - 1) >> 12;
+	uint64_t kstart_page = (uintptr_t)_kernel_phys_start >> 12;
+	uint64_t kend_page = ((uintptr_t)_kernel_phys_end + PAGE_SIZE - 1) >> 12;
 
 	for (uint64_t page = kstart_page; page < kend_page; page++) {
 		if ((page >> 3) < bitmap_bytes) {
@@ -173,7 +173,7 @@ void pmm_free_page(void *page)
 	}
 
 	// Protect Kernel Memory
-	if (addr < (uintptr_t)_kernel_end && addr >= (uintptr_t)_kernel_start) {
+	if (addr < (uintptr_t)_kernel_phys_end && addr >= (uintptr_t)_kernel_phys_start) {
 		return;
 	}
 

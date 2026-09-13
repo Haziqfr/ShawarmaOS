@@ -4,31 +4,75 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 0x9000;
+    . = 0xC0009000;
 
-	_kernel_start = .;
+    _kernel_phys_start = 0x9000;
+	_kernel_virt_start = .;
 
-	.text :
+	.text : AT(ADDR(.text) - _kernel_virt_start + _kernel_phys_start)
 	{
 	    *(.entry)
 		*(.text*)
 	}
 
-	.rodata :
+	.rodata : AT(ADDR(.rodata) - _kernel_virt_start + _kernel_phys_start)
 	{
 		*(.rodata*)
 	}
 
-	.data :
+	.data : AT(ADDR(.data) - _kernel_virt_start + _kernel_phys_start)
 	{
 		*(.data*)
 	}
 
-	.bss :
+	.bss : ALIGN(4K)
 	{
 		*(.bss*)
 	}
 
-	_kernel_end = .;
+	_kernel_virt_end = .;
+	_kernel_phys_end = LOADADDR(.bss) + SIZEOF(.bss);
 
 }
+
+
+
+/*old:*/
+/**/
+/*OUTPUT_FORMAT(elf32-i386)*/
+/*OUTPUT_ARCH(i386)*/
+/*ENTRY(_start)*/
+/**/
+/*SECTIONS*/
+/*{*/
+/*    . = 0xC0009000;*/
+/**/
+/*    _kernel_phys_start = 0x9000;*/
+/*	_kernel_virt_start = .;*/
+/**/
+/*	.text : AT(0x9000)*/
+/*	{*/
+/*	    *(.entry)*/
+/*		*(.text*)*/
+/*	}*/
+/**/
+/*	.rodata : ALIGN(4K)*/
+/*	{*/
+/*		*(.rodata*)*/
+/*	}*/
+/**/
+/*	.data : ALIGN(4K)*/
+/*	{*/
+/*		*(.data*)*/
+/*	}*/
+/**/
+/*	.bss : ALIGN(4K)*/
+/*	{*/
+/*		*(.bss*)*/
+/*	}*/
+/**/
+/*	_kernel_virt_end = .;*/
+/*	_kernel_phys_end = LOADADDR(.bss) + SIZEOF(.bss);*/
+/**/
+/*}*/
+/**/
