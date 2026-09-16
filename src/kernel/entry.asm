@@ -3,6 +3,7 @@
 section .entry
 extern kernel_main
 global _start
+global reload_gdt
 
 ;
 ; Linker script assumes the address 0xC0000000 as the base VMA. To get physical
@@ -58,6 +59,17 @@ _start:
     jmp .halt    ; loop forever
 
 ;section .data
+
+reload_gdt:
+    mov eax, gdt_start
+    mov dword [gdt_descriptor_phys + 2], eax
+
+    ; Reload GDT
+    lgdt [gdt_descriptor_phys]
+    jmp 0x08:(.reload_cs)
+
+.reload_cs:
+    ret
 
 align 4
 gdt_start:

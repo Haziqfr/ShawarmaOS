@@ -15,6 +15,7 @@
 
 void kernel_main_high(BootInfo *boot);
 extern void enable_paging(void);
+extern void reload_gdt(void);
 
 void kernel_main(BootInfo *boot)
 {
@@ -41,6 +42,8 @@ void kernel_main(BootInfo *boot)
 
 	//enable_paging();
 	kprintf("[INFO] Paging Enabled\n");
+	reload_gdt();
+	kprintf("[INFO] GDT Reloaded\n");
 
 	timer_init(100);
 	kprintf("[INFO] Timer Initialized\n");
