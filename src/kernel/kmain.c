@@ -34,14 +34,9 @@ void kernel_main(BootInfo *boot)
 	pmm_init(boot);
 	kprintf("[INFO] PMM Initialized\n");
 
-	//vmm_identity_map_kernel();
-	kprintf("[INFO] Identity mapped the kernel\n");
+	vmm_init();
+	kprintf("[INFO] VMM Initialized\n");
 
-	//vmm_higher_half_map_kernel();
-	kprintf("[INFO] Higher half mapped the kernel\n");
-
-	//enable_paging();
-	kprintf("[INFO] Paging Enabled\n");
 	reload_gdt();
 	kprintf("[INFO] GDT Reloaded\n");
 

@@ -1,55 +1,71 @@
 #include <mm/vmm.h>
 #include <mm/pmm.h>
-#include <stdio.h>
+#include <arch/i386/stdint.h>
+#include <stddef.h>
+#include <string.h>
 
-#define VIRT_HIGHER_HALF_ADDR 0xC0000000
+static page_directory_t* kernel_pd;
+static phys_addr_t kernel_pd_phys_addr;
 
-extern void load_page_dir(uintptr_t);
-
-/*
- Global Kernel Page Directory
-*/
-static uint32_t* kernel_pd = 0;
-
-void vmm_identity_map_kernel(void)
+void vmm_init(void)
 {
-	if (!kernel_pd) {
-		kernel_pd = pmm_alloc_page();
+	kernel_pd_phys_addr = (uintptr_t)pmm_alloc_page();
+	kernel_pd = (page_directory_t*)PHYS2VIRT(kernel_pd_phys_addr);
+	memset(kernel_pd, 0, sizeof(page_directory_t));
 
-		// Clear PD to avoid garbage values acting as present pages
-		for (uint16_t i = 0; i < 1024; i++) kernel_pd[i] = 0;
+	for (size_t i = 0; i < 0x400000; i += 0x1000) {
+		vmm_map_page(KERNEL_VIRT_ADDR + i, i, VMM_FLAG_WRITABLE);
 	}
 
-	uint32_t *iden_pt = pmm_alloc_page();
-
-	kernel_pd[0] = ((uintptr_t)iden_pt & 0xFFFFF000) | PRESENT | RW;
-
-	for (uint16_t i = 0; i < 1024; i++) {
-		iden_pt[i] = ((i * 0x1000) & 0xFFFFF000) | PRESENT | RW;
-	}
-
-	load_page_dir((uintptr_t)kernel_pd);
-	kprintf("[INFO] Loaded page table\n");
+	load_page_dir(kernel_pd_phys_addr);
 }
 
-void vmm_higher_half_map_kernel(void)
+void vmm_map_page(virt_addr_t virt, phys_addr_t phys, vmm_flags_t flags)
 {
-	if (!kernel_pd) {
-		kernel_pd = pmm_alloc_page();
+	uint32_t pd_idx = pde_index(virt);
+	uint32_t pt_idx = pte_index(virt);
 
-		// Clear PD to avoid garbage values acting as present pages
-		for (uint16_t i = 0; i < 1024; i++) kernel_pd[i] = 0;
+	page_table_t* pt = vmm_get_or_create_pt(pd_idx);
+
+	if (!pt) return;
+
+	pt->entries[pt_idx] = (phys & 0xFFFFF000) | flags | VMM_FLAG_PRESENT;
+
+	tlb_flush_single(virt);
+}
+
+void vmm_unmap_page(virt_addr_t virt)
+{
+	uint32_t pd_idx = pde_index(virt);
+	uint32_t pt_idx = pte_index(virt);
+	uint32_t pde = kernel_pd->entries[pd_idx];
+
+	if (!(pde & VMM_FLAG_PRESENT)) return;
+
+	page_table_t* pt = (page_table_t*)PHYS2VIRT(pde & 0xFFFFF000);
+
+	pt->entries[pt_idx] = 0;
+
+	tlb_flush_single(virt);
+
+}
+
+page_table_t* vmm_get_or_create_pt(uint32_t pd_index)
+{
+	uint32_t pde = kernel_pd->entries[pd_index];
+
+	if (pde & VMM_FLAG_PRESENT) {
+		uintptr_t pt_phys = pde & 0xFFFFF000;
+		return (page_table_t*)PHYS2VIRT(pt_phys);
 	}
 
-	uint32_t *higher_pt = pmm_alloc_page();
-	uint32_t pde = VIRT_HIGHER_HALF_ADDR >> 22;
+	uintptr_t new_pt_phys = (uintptr_t)pmm_alloc_page();
+	if (!new_pt_phys) return NULL; // OOM
 
-	kernel_pd[pde] = ((uintptr_t)higher_pt & 0xFFFFF000) | PRESENT | RW;
+	page_table_t* pt_virt = (page_table_t*)PHYS2VIRT(new_pt_phys);
+	memset(pt_virt, 0, sizeof(page_table_t));
 
-	for (uint32_t i = 0; i < 1024; i++) {
-		higher_pt[i] = (((i * 0x1000) & 0xFFFFF000) + 0x9000) | PRESENT | RW;
-	}
+	kernel_pd->entries[pd_index] = new_pt_phys | VMM_FLAG_PRESENT | VMM_FLAG_WRITABLE;
 
-	load_page_dir((uintptr_t)kernel_pd);
-	kprintf("[INFO] Loaded page table\n");
+	return pt_virt;
 }
