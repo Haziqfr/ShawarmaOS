@@ -12,17 +12,15 @@ idt_load:
 %macro ISR_NOERRCODE 1
 global isr%1
 isr%1:
-    cli
-    push byte 0
-    push %1
+    push dword 0
+    push dword %1
     jmp isr_common_stub
 %endmacro
 
 %macro ISR_ERRCODE 1
 global isr%1
 isr%1:
-    cli
-    push %1
+    push dword %1
     jmp isr_common_stub
 %endmacro
 
@@ -41,8 +39,11 @@ isr%1:
 isr_common_stub:
     pusha
 
-    mov ax, ds
-    push eax
+    mov eax, ds
+    push eax        ; save Data Segment
+
+    mov eax, cr2
+    push eax        ; save the faulting address
 
     mov ax, 0x10
     mov ds, ax
@@ -54,6 +55,8 @@ isr_common_stub:
     call interrupt_dispatch
     add esp, 4
 
+    add esp, 4
+
     pop eax
     mov ds, ax
     mov es, ax
@@ -62,7 +65,6 @@ isr_common_stub:
 
     popa
     add esp, 8
-    sti
     iret
 
 global isr_stub_table

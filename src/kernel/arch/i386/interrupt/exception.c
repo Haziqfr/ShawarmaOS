@@ -54,7 +54,9 @@ void exception_panic_frame(const struct regs *r)
 
 	kprintf("EIP:    %#x\n", r->eip);
 	kprintf("CS:     %#x\n", r->cs);
+	kprintf("DS      %#x\n", r->ds);
 	kprintf("EFLAGS: %#x\n", r->eflags);
+	kprintf("CR2     %#x\n", r->cr2);
 
 	kprintf("\n==============================\n");
 }

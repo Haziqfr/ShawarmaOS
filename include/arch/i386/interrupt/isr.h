@@ -6,6 +6,7 @@
 
 // Types
 struct regs {
+	uint32_t cr2;
 	uint32_t ds;
 
 	uint32_t edi;
