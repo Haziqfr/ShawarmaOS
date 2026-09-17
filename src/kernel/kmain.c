@@ -7,6 +7,7 @@
 #include <drivers/video/vga.h>
 #include <mm/pmm.h>
 #include <mm/vmm.h>
+#include <pci/pci.h>
 
 /*
  * Magic = crc32("ShawarmaOS Boot Protocol")
@@ -41,6 +42,9 @@ void kernel_main(phys_addr_t boot_phys)
 
 	timer_init(100);
 	kprintf("[INFO] Timer Initialized\n");
+
+	pci_init();
+	kprintf("[INFO] PCI Initialized\n");
 
 	__asm__ volatile("sti");
 	kprintf("[INFO] Interrupts enabled\n");
