@@ -13,12 +13,11 @@
  */
 #define MAGIC 0x88FF1A3B
 
-void kernel_main_high(BootInfo *boot);
-extern void enable_paging(void);
 extern void reload_gdt(void);
 
-void kernel_main(BootInfo *boot)
+void kernel_main(phys_addr_t boot_phys)
 {
+	BootInfo* boot = (BootInfo*)PHYS2VIRT(boot_phys);
 	vga_clear();
 	vga_write("Hello again from ShawarmaOS\n");
 
