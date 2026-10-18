@@ -70,7 +70,7 @@ main:
  xor ax, ax
  mov es, ax
  mov ax, 0x0238
- mov cx, 0x0004
+ mov cx, 0x0006
  mov dh, 0
  mov dl, [boot_drive]
  mov bx, 0x9000
@@ -85,6 +85,7 @@ main:
     mov dl, [boot_drive]
     mov ah, 0x42
     int 13h
+    jc .halt
 
 .stage_finale:
   cli                      ; disable all interrupts
@@ -490,7 +491,7 @@ DAP:
     db 0x00      ; reserved, always 0
     dw 0x0038    ; sectors to read
     dw 0x9000, 0x0000        ; loading address
-    dq 0x0000000000000003    ; sector number
+    dq 0x0000000000000005    ; sector number
 
 
 boot_drive: db 0
@@ -633,4 +634,4 @@ err_mm_failed_msg: db "Unable to detect Memory Map", 0x0D, 0x0A, "Halting...", 0
 err_framebuff_failed_msg: db "Unable to get framebuffer", 0x0D, 0x0A, "Halting...", 0x0D, 0x0A, 0
 err_mode_failed_msg: db "Unable to get suitable VBE mode", 0x0D, 0x0A, "Halting...", 0x0D, 0x0A, 0
 
-times 1024-($-$$) db 0
+times 2048-($-$$) db 0
