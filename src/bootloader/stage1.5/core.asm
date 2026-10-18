@@ -10,6 +10,7 @@
 
 
 BOOTINFO_ADDR      equ 0x6D00
+BOOTINFO_SIZE      equ 4096
 MMAP_MAX_ENTRIES   equ 128
 MMAP_ENTRY_SIZE    equ 20
 VBE_INFO_ADDR_SEG  equ 0x7000
@@ -55,12 +56,22 @@ main:
 
 
 .continue:
+ ; Zero-Initialize the BootInfo
+ xor ax, ax
+ mov es, ax
+ mov di, BOOTINFO_ADDR
+ mov cx, BOOTINFO_SIZE
+ cld
+ rep stosb
+
  ; Magic = crc-32("ShawarmaOS Boot Protocol")
  mov dword [BOOTINFO_ADDR + BootInfo.magic], MAGIC
  mov word [BOOTINFO_ADDR + BootInfo.version], 0x0200
  call get_memory_map
  call get_vbe_info
  call get_vbe_mode_info
+ xor ax, ax
+ mov ds, ax
  mov al, [lba_status]
  cmp al, 2
  je .lba_read
@@ -542,7 +553,7 @@ struc BootInfo
 endstruc
 
 %assign BootInfoSize BootInfo_size
-static_assert (BootInfoSize == 4096), CRITICAL: BootInfo must be 4096 bytes. Current size: %[BootInfoSize] bytes
+static_assert (BootInfoSize == BOOTINFO_SIZE), CRITICAL: BootInfo must be 4096 bytes. Current size: %[BootInfoSize] bytes
 
 struc VbeInfo
     .signature:            resb 4   ; 0x000
