@@ -70,6 +70,7 @@ main:
  call get_memory_map
  call get_vbe_info
  call get_vbe_mode_info
+ call get_rsdp
  xor ax, ax
  mov ds, ax
  mov al, [lba_status]
@@ -298,6 +299,113 @@ get_memory_map:
 
 .success:
     ret
+
+get_rsdp:
+    push ds         ; save ds
+    push es
+
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+
+    mov ax, [0x040E]
+    test ax, ax
+    jz .search_bios_rom
+    mov gs, ax
+
+    xor edi, edi
+
+.search_ebda:
+    cmp dword [gs:di],   "RSD "
+    jne .next_ebda
+    cmp dword [gs:di+4], "PTR "
+    jne .next_ebda
+
+.found:
+    xor ax, ax
+    xor bx, bx
+    movzx cx, byte [gs:di+0x0F]
+
+.checksum_v0:
+    add al, byte [gs:di+bx]
+    inc bx
+    cmp bx, 20
+    jb .checksum_v0
+
+    test al, al
+    jnz .next_entry
+
+    cmp cx, 2
+    jae .checksum_v2
+
+    jmp .success
+
+.checksum_v2:
+    add al, byte [gs:di+bx]
+    inc bx
+    cmp bx, 36
+    jb .checksum_v2
+
+    test al, al
+    jnz .next_entry
+
+.success:
+    mov dx, gs
+    movzx eax, dx
+    shl eax, 4
+    add eax, edi
+
+    mov [es:BOOTINFO_ADDR + BootInfo.rsdp_phys], eax
+
+    pop es
+    pop ds
+    ret
+
+.next_ebda:
+    add di, 16
+    cmp di, 1024
+    jb .search_ebda
+
+.search_bios_rom:
+    mov ax, 0xE000
+    mov gs, ax
+    xor edi, edi
+
+.search_rom:
+    cmp dword [gs:di],   "RSD "
+    jne .next_rom
+    cmp dword [gs:di+4], "PTR "
+    je .found
+
+.next_rom:
+    add di, 16
+    jnz .search_rom
+
+    mov ax, gs
+    cmp ax, 0xF000
+    je .fail
+
+    mov ax, 0xF000
+    mov gs, ax
+    jmp .search_rom
+
+.next_entry:
+    mov ax, gs
+    cmp ax, 0xE000
+    je .next_rom
+    cmp ax, 0xF000
+    je .next_rom
+
+    jmp .next_ebda
+
+.fail:
+    mov si, err_rsdp_not_found_msg
+    call puts
+.halt:
+    cli
+    hlt
+    jmp .halt
+
 
 get_vbe_info:
     xor ax, ax
@@ -548,7 +656,9 @@ struc BootInfo
     .e820_table:    resb 2560  ; 0x008
     .screen_info:   resb screen_info_size ; 0xA08
 
-    .reserved1:     resb 1464  ; 0xA48
+    .rsdp_phys:     resb 8     ; 0xA48
+
+    .reserved1:     resb 1456  ; 0xA6C
 
 endstruc
 
@@ -644,5 +754,6 @@ msg: db "I am stage1.5, I am alive", 0x0D, 0x0A, 0
 err_mm_failed_msg: db "Unable to detect Memory Map", 0x0D, 0x0A, "Halting...", 0x0D, 0x0A, 0
 err_framebuff_failed_msg: db "Unable to get framebuffer", 0x0D, 0x0A, "Halting...", 0x0D, 0x0A, 0
 err_mode_failed_msg: db "Unable to get suitable VBE mode", 0x0D, 0x0A, "Halting...", 0x0D, 0x0A, 0
+err_rsdp_not_found_msg: db "Unable to get RSDP", 0x0D, 0x0A, "Halting...", 0x0D, 0x0A, 0
 
 times 2048-($-$$) db 0

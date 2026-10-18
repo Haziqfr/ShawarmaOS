@@ -49,13 +49,21 @@ void kernel_main(phys_addr_t boot_phys)
 	__asm__ volatile("sti");
 	kprintf("[INFO] Interrupts enabled\n");
 
-
 	if (boot->magic != MAGIC) {
 		kprintf("Invalid boot info. Go cry now\n");
 		return;
 	}
 
 	kprintf("Boot Info is correct. Celebrate!!!\n");
+
+	if (boot->rsdp_phys == 0) {
+		kprintf("Error: RSDP physical address is NULL\n");
+		return;
+	}
+
+	struct xsdp_t* rsdp = (struct xsdp_t*)PHYS2VIRT(boot->rsdp_phys);
+
+	kprintf("ACPI version: %d\n", rsdp->revision);
 
 	for (;;) {
 		__asm__ volatile("hlt");

@@ -41,6 +41,25 @@ struct screen_info {
 _Static_assert(sizeof(struct screen_info) == 64,
 	"screen_info must be 64 bytes");
 
+struct xsdp_t {
+	// ACPI 1.x
+	char signature[8];  /* 0x00 */
+	uint8_t checksum;   /* 0x08 */
+	char oemid[6];      /* 0x09 */
+	uint8_t revision;   /* 0x0F */
+	uint32_t rsdt_addr; /* 0x10 */
+
+	// ACPI 2.x+
+	uint32_t length;     /* 0x14 */
+	uint64_t xsdt_addr;  /* 0x18 */
+	uint8_t xtdchecksum; /* 0x20 */
+
+	uint8_t reserved[3]; /* 0x21 */
+} __attribute__((packed));
+
+_Static_assert(sizeof(struct xsdp_t) == 36,
+	"XSDP must be 36 bytes");
+
 typedef struct GenesisPage {
 	uint32_t magic;          /* 0x000 */
 	uint16_t version;        /* 0x004 */
@@ -53,7 +72,9 @@ typedef struct GenesisPage {
 
 	struct screen_info screen_info; /* 0xA08 */
 
-	uint8_t _reserved1[1464]; /* 0xA48 */
+	uint64_t rsdp_phys;       /* 0xA48 */
+
+	uint8_t _reserved1[1456]; /* 0xA50 */
 
 } __attribute__((packed)) BootInfo;
 
