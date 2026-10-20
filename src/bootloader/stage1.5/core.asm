@@ -18,6 +18,8 @@ VBE_MODEINFO_ADDR_SEG equ 0x7100
 
 MAGIC              equ 0x88FF1A3B ; crc32("ShawarmaOS Boot Protocol")
 
+KERNEL_SECTORS     equ 512
+
 CODE_SEG equ code_segment_descriptor - gdt_start    ; code segment pointer
 DATA_SEG equ data_segment_descriptor - gdt_start    ; data segment pointer
         ; equ is used to set constants in NASM
@@ -89,9 +91,76 @@ main:
  jnc .stage_finale
 
 .lba_read:
+    mov word [sectors_left], KERNEL_SECTORS
+    mov dword [dest_addr], 0x9000
+    mov word [current_lba], 5
+    mov dl, byte [boot_drive]
+
+.lba_read_loop:
+    mov di, 3
+.read_loop:
+    cmp word [sectors_left], 0
+    je .stage_finale
+
+    call .chunk_min
+
+    movzx eax, word [current_lba]
+    mov dword [DAP+8], eax
+    mov dword [DAP+12], 0
+
+    ; Calculate the buffer segment
+    mov eax, dword [dest_addr]
+    shr eax, 4
+    mov word [DAP+6], ax
+
+    ; Calculate the buffer offset
+    mov eax, dword [dest_addr]
+    movzx ecx, word [DAP+6]
+    shl ecx, 4
+    sub eax, ecx
+    mov word [DAP+4], ax
+
     mov si, DAP
     mov ah, 0x42
-    jc global_halt
+    int 0x13
+    jnc .read_success
+
+    xor ah, ah
+    int 0x13
+
+    dec di
+    jnz .read_loop
+
+    jmp .error_lba_read
+
+.read_success:
+    movzx ecx, word [DAP+2]
+    sub word [sectors_left], cx
+    add word [current_lba], cx
+
+    shl ecx, 9
+    add dword [dest_addr], ecx
+
+    jmp .lba_read_loop
+
+.chunk_min:
+    cmp word [sectors_left], 18
+    jae .return
+
+    mov ax, word [sectors_left]
+    mov [DAP+2], ax
+
+    ret
+
+.return:
+    mov [DAP+2], 18
+    ret
+
+.error_lba_read:
+    mov si, err_failed_lba_read
+    call puts
+    jmp global_halt
+
 
 .stage_finale:
   cli                      ; disable all interrupts
@@ -607,6 +676,10 @@ DAP:
 boot_drive: db 0
 lba_status: db 0
 
+current_lba:  dw 0
+sectors_left: dw 0
+dest_addr:    dd 0
+
 best_vbe_mode: dw 0
 best_vbe_mode_score: dd 0
 
@@ -746,5 +819,6 @@ err_mm_failed_msg: db "Unable to detect Memory Map", 0x0D, 0x0A, "Halting...", 0
 err_framebuff_failed_msg: db "Unable to get framebuffer", 0x0D, 0x0A, "Halting...", 0x0D, 0x0A, 0
 err_mode_failed_msg: db "Unable to get suitable VBE mode", 0x0D, 0x0A, "Halting...", 0x0D, 0x0A, 0
 err_rsdp_not_found_msg: db "Unable to get RSDP", 0x0D, 0x0A, "Halting...", 0x0D, 0x0A, 0
+err_failed_lba_read: db "Unable to read LBA disk", 0x0D, 0x0A, "Halting...", 0
 
 times 2048-($-$$) db 0
