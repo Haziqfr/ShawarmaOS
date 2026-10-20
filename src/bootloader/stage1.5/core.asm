@@ -52,7 +52,7 @@ main:
 
   call get_a20_state
   cmp ax, 0    
-  je .halt    ; halt if A20 can't be enabled
+  je global_halt    ; halt if A20 can't be enabled
 
 
 .continue:
@@ -71,8 +71,6 @@ main:
  call get_vbe_info
  call get_vbe_mode_info
  call get_rsdp
- xor ax, ax
- mov ds, ax
  mov al, [lba_status]
  cmp al, 2
  je .lba_read
@@ -87,17 +85,13 @@ main:
  mov dl, [boot_drive]
  mov bx, 0x9000
  int 0x13
- jc .halt
+ jc global_halt
  jnc .stage_finale
 
 .lba_read:
-    xor ax, ax
-    mov ds, ax
     mov si, DAP
-    mov dl, [boot_drive]
     mov ah, 0x42
-    int 13h
-    jc .halt
+    jc global_halt
 
 .stage_finale:
   cli                      ; disable all interrupts
@@ -110,13 +104,7 @@ main:
   mov ebx, BOOTINFO_ADDR
   jmp CODE_SEG:0x9000    ; flush prefetched instructions and jump to protected mode start
 
-  jmp .halt
-
-
-.halt:
-  cli
-  hlt
-  jmp .halt
+  jmp global_halt
 
 
 ;	out:
@@ -292,10 +280,7 @@ get_memory_map:
 .fail:
     mov si, err_mm_failed_msg
     call puts
-.halt:
-    cli
-    hlt
-    jmp .halt
+    jmp global_halt
 
 .success:
     ret
@@ -401,13 +386,12 @@ get_rsdp:
 .fail:
     mov si, err_rsdp_not_found_msg
     call puts
-.halt:
-    cli
-    hlt
-    jmp .halt
+    jmp global_halt
 
 
 get_vbe_info:
+    push es
+
     xor ax, ax
     mov ax, VBE_INFO_ADDR_SEG
     mov es, ax
@@ -422,15 +406,13 @@ get_vbe_info:
     cmp ax, 0x004F
     jne .fail
 
+    pop es
     ret
 
 .fail:
     mov si, err_framebuff_failed_msg
     call puts
-.halt:
-    cli
-    hlt
-    jmp .halt
+    jmp global_halt
 
 ;
 ; Preferably we want the highest resolution and 32bit Bit Per Pixel
@@ -438,6 +420,9 @@ get_vbe_info:
 ;
 
 get_vbe_mode_info:
+    push ds
+    push es
+
     push VBE_INFO_ADDR_SEG
     pop ds
     lds si, [VbeInfo.video_mode_ptr]
@@ -539,15 +524,15 @@ get_vbe_mode_info:
     mov byte [gs:BOOTINFO_ADDR + BootInfo.screen_info + screen_info.reserved_pos], ah
     mov byte [gs:BOOTINFO_ADDR + BootInfo.screen_info + screen_info.reserved_size], al
 
+    pop es
+    pop ds
+
     ret
 
 .fail:
     mov si, err_mode_failed_msg
     call puts
-.halt:
-    cli
-    hlt
-    jmp .halt
+    jmp global_halt
 
 
 puts:
@@ -570,6 +555,12 @@ puts:
  pop si
 
  ret
+
+global_halt:
+  cli
+.hang:
+  hlt
+  jmp .hang
 
 
 gdt_start:
