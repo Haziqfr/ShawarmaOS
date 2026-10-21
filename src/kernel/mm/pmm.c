@@ -3,6 +3,7 @@
 #include <uapi/genesis/bootparam.h>
 #include <stddef.h>
 #include <arch/i386/stdint.h>
+#include <panic.h>
 
 #define ALIGN_UP(num, align) (((num) + ((align) - 1)) & ~((align) - 1))
 #define PHYS_ADDR_LIMIT 0x100000000ULL
@@ -25,6 +26,10 @@ void pmm_init(BootInfo *boot_info)
 			continue;
 		}
 
+		if (map->size > UINT64_MAX - map->addr) {
+			panic("PMM: Invalid E820 range overflow");
+		}
+
 		uint64_t end = map->addr + map->size;
 
 		if (end > highest_addr) {
@@ -34,6 +39,10 @@ void pmm_init(BootInfo *boot_info)
 
 	if (highest_addr > PHYS_ADDR_LIMIT) {
 		highest_addr = PHYS_ADDR_LIMIT;
+	}
+
+	if (highest_addr == 0) {
+		panic("PMM: no usable physical memory found");
 	}
 
 	uint64_t total_pages = (highest_addr + PAGE_SIZE - 1) >> 12;
@@ -54,7 +63,7 @@ void pmm_init(BootInfo *boot_info)
 
 		uint64_t map_end = map->addr + map->size;
 
-		if (bitmap_start + bitmap_bytes <= map_end) {
+		if (bitmap_start <= map_end && bitmap_bytes <= map_end - bitmap_start) {
 			if (bitmap_start < (uintptr_t)_kernel_phys_end &&
 			    bitmap_start + bitmap_bytes >
 				    (uintptr_t)_kernel_phys_start) {
@@ -67,6 +76,10 @@ void pmm_init(BootInfo *boot_info)
 				break;
 			}
 		}
+	}
+
+	if (bitmap_addr == 0) {
+		panic("PMM: could not find space for memory bitmap");
 	}
 
 	bitmap = (uint8_t *)bitmap_addr;
@@ -121,7 +134,7 @@ void pmm_init(BootInfo *boot_info)
 	}
 }
 
-void *pmm_alloc_page(void)
+phys_addr_t pmm_alloc_frame(void)
 {
 	for (uint64_t byte = next_free_byte; byte < bitmap_bytes; byte++) {
 		if (bitmap[byte] == 0xFF)
@@ -133,10 +146,10 @@ void *pmm_alloc_page(void)
 			}
 
 			bitmap[byte] |= (uint8_t)(1 << bit);
-			next_free_byte = byte;
+			next_free_byte = (bitmap[byte] == 0xFF) ? byte + 1 : byte;
 
 			uint64_t page_index = byte * 8 + bit;
-			return (void *)(uintptr_t)(page_index << 12);
+			return (uintptr_t)(page_index << 12);
 		}
 	}
 
@@ -150,19 +163,19 @@ void *pmm_alloc_page(void)
 			}
 
 			bitmap[byte] |= (uint8_t)(1 << bit);
-			next_free_byte = byte;
+			next_free_byte = (bitmap[byte] == 0xFF) ? byte + 1 : byte;
 
 			uint64_t page_index = byte * 8 + bit;
-			return (void *)(uintptr_t)(page_index << 12);
+			return (uintptr_t)(page_index << 12);
 		}
 	}
 
-	return NULL; // OOM (Out Of Memory)
+	return 0; // OOM (Out Of Memory)
 }
 
-void pmm_free_page(void *page)
+void pmm_free_frame(phys_addr_t frame)
 {
-	uintptr_t addr = (uintptr_t)page;
+	uintptr_t addr = frame;
 
 	if (addr & (PAGE_SIZE - 1))
 		return;

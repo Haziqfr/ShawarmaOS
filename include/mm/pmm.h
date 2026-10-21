@@ -9,7 +9,7 @@
 #define USABLE 1
 
 void pmm_init(BootInfo *boot);
-void *pmm_alloc_page(void);
-void pmm_free_page(void *page);
+phys_addr_t pmm_alloc_frame(void);
+void pmm_free_frame(phys_addr_t frame);
 
 #endif /* MM_PMM_H */
