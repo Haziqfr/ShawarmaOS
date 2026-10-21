@@ -4,7 +4,7 @@
 
 
 $(BUILD_DIR)/stage1.bin: $(STAGE1_ASM_SRC) | always
-	$(AS) $(ASFLAGS) $(STAGE1_ASM_SRC) -o $@
+	@$(AS) $(ASFLAGS) $(STAGE1_ASM_SRC) -o $@
 
 
 
@@ -14,5 +14,5 @@ $(BUILD_DIR)/stage1.bin: $(STAGE1_ASM_SRC) | always
 
 
 $(BUILD_DIR)/stage1-5.bin: $(STAGE1_5_ASM_SRC) | always
-	$(AS) $(ASFLAGS) $(STAGE1_5_ASM_SRC) -o $@
+	@$(AS) $(ASFLAGS) $(STAGE1_5_ASM_SRC) -o $@
 
