@@ -1,7 +1,7 @@
 #include <mm/pmm.h>
+#include <mm/mm.h>
 #include <stdio.h>
 #include <uapi/genesis/bootparam.h>
-#include <stddef.h>
 #include <arch/i386/stdint.h>
 #include <panic.h>
 
@@ -82,7 +82,7 @@ void pmm_init(BootInfo *boot_info)
 		panic("PMM: could not find space for memory bitmap");
 	}
 
-	bitmap = (uint8_t *)bitmap_addr;
+	bitmap = (uint8_t *)(uintptr_t)bitmap_addr;
 	kprintf("[INFO] Bitmap address: %p\n", bitmap);
 
 	for (uint64_t i = 0; i < bitmap_bytes; i++) {

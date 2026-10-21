@@ -2,6 +2,7 @@
 #define MM_PMM_H
 
 // Includes
+#include <mm/mm.h>
 #include <uapi/genesis/bootparam.h>
 
 // Macro Constants

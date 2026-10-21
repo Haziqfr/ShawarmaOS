@@ -1,5 +1,7 @@
 #include <mm/vmm.h>
+#include <mm/mm.h>
 #include <mm/pmm.h>
+#include <panic.h>
 #include <arch/i386/stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -9,7 +11,12 @@ static phys_addr_t kernel_pd_phys_addr;
 
 void vmm_init(void)
 {
-	kernel_pd_phys_addr = (uintptr_t)pmm_alloc_page();
+	kernel_pd_phys_addr = pmm_alloc_frame();
+
+	if (kernel_pd_phys_addr == 0) {
+		panic("VMM: failed to allocate page directory");
+	}
+
 	kernel_pd = (page_directory_t*)PHYS2VIRT(kernel_pd_phys_addr);
 	memset(kernel_pd, 0, sizeof(page_directory_t));
 
@@ -59,11 +66,11 @@ page_table_t* vmm_get_or_create_pt(uint32_t pd_index)
 		return (page_table_t*)PHYS2VIRT(pt_phys);
 	}
 
-	uintptr_t new_pt_phys = (uintptr_t)pmm_alloc_page();
+	uintptr_t new_pt_phys = pmm_alloc_frame();
 	if (!new_pt_phys) return NULL; // OOM
 
 	page_table_t* pt_virt = (page_table_t*)PHYS2VIRT(new_pt_phys);
-	memset(pt_virt, 0, sizeof(page_table_t));
+	memset(pt_virt, 0, PAGE_SIZE);
 
 	kernel_pd->entries[pd_index] = new_pt_phys | VMM_FLAG_PRESENT | VMM_FLAG_WRITABLE;
 

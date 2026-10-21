@@ -1,6 +1,7 @@
 #ifndef MM_VMM_H
 #define MM_VMM_H
 
+#include <mm/mm.h>
 #include <arch/i386/stdint.h>
 
 // Flags
@@ -12,24 +13,6 @@ typedef enum {
 	VMM_FLAG_CACHE_DISABLE = (1 << 4),
 	VMM_FLAG_GLOBAL        = (1 << 8),
 } vmm_flags_t;
-
-#define KERNEL_VIRT_ADDR 0xC0000000
-
-#define MMIO_BASE_START 0xE0000000
-#define MMIO_BASE_END   0xF8000000
-
-// Types
-typedef uint32_t phys_addr_t;
-typedef uint32_t virt_addr_t;
-#define PHYS_ADDR_MAX UINT32_MAX
-
-typedef struct {
-	uint32_t entries[1024];
-} __attribute__((aligned(4096))) page_directory_t;
-
-typedef struct {
-	uint32_t entries[1024];
-} __attribute__((aligned(4096))) page_table_t;
 
 void vmm_init(void);
 void vmm_map_page(virt_addr_t virt, phys_addr_t phys, vmm_flags_t flags);
