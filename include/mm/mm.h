@@ -1,7 +1,7 @@
 #ifndef MM_MM_H
 #define MM_MM_H
 
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 // Types
 typedef uint32_t phys_addr_t;

@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <console.h>
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 // ceil(2^37 / 100) = 1374389535 = 0x51EB851F
 #define MAGIC_MULTIPLIER_100 0x51EB851FULL

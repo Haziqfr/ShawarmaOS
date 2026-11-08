@@ -1,7 +1,7 @@
 #ifndef PCI_CONFIG_H
 #define PCI_CONFIG_H
 
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 #define PCI_CONFIG_CMD_PORT 0xCF8
 #define PCI_CONFIG_DATA_PORT 0xCFC

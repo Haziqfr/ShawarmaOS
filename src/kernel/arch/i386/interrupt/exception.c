@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <arch/i386/interrupt/isr.h>
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 static const char *const exception_messages[] = {
 	"Division By Zero",

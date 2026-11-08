@@ -1,7 +1,7 @@
 #include <drivers/serial/serial.h>
 #include <arch/i386/interrupt/pic.h>
 #include <arch/i386/interrupt/irq.h>
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 #include <arch/i386/io.h>
 
 static void com1_irq_handler(struct regs *r);

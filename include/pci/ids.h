@@ -1,7 +1,7 @@
 #ifndef PCI_IDS_H
 #define PCI_IDS_H
 
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 #define PCI_VENDOR_COUNT (sizeof(pci_vendors) / sizeof(pci_vendors[0]))
 

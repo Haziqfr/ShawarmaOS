@@ -2,7 +2,7 @@
 #define SHAWARMAOS_STDBOOL_H
 
 // Includes
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 // Types
 typedef uint8_t bool; // Bool = 8-bit unsigned integer

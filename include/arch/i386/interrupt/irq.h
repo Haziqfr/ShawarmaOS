@@ -3,6 +3,7 @@
 
 // Includes
 #include <arch/i386/interrupt/isr.h>
+#include <stdint.h>
 
 // Types
 typedef void (*irq_handler_t)(struct regs *);

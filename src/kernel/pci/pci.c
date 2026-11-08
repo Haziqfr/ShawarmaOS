@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 void pci_init(void)
 {

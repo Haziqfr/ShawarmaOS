@@ -1,5 +1,5 @@
 #include <drivers/timer/pit.h>
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 #include <arch/i386/io.h>
 
 

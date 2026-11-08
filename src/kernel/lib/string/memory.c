@@ -1,4 +1,4 @@
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 #include <stddef.h>
 #include <string.h>
 

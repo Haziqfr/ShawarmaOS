@@ -2,7 +2,7 @@
 #define DRIVERS_TIMER_PIT_H
 
 // Includes
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 // Macro Constants
 #define PIT_CHNL0_PORT 0x40

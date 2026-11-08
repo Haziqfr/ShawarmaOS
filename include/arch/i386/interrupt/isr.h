@@ -2,7 +2,7 @@
 #define ARCH_I386_ISR_H
 
 // Includes
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 // Types
 struct regs {

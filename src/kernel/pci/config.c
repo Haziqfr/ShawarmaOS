@@ -1,5 +1,5 @@
 #include <pci/config.h>
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 #include <arch/i386/io.h>
 
 uint32_t pci_config_read32(uint8_t bus, uint8_t device, uint8_t function,

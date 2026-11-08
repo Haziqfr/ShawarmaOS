@@ -1,6 +1,5 @@
 #include <drivers/timer/timer.h>
-#include <drivers/serial/serial.h>
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 #include <drivers/timer/pit.h>
 #include <arch/i386/interrupt/irq.h>
 #include <arch/i386/interrupt/pic.h>
@@ -21,7 +20,7 @@ void timer_init(uint32_t hz)
 }
 
 
-void timer_tick()
+void timer_tick(void)
 {
 	ticks++;
 }
@@ -31,7 +30,7 @@ uint64_t timer_get_ticks(void)
 	return ticks;
 }
 
-uint32_t timer_get_frequency()
+uint32_t timer_get_frequency(void)
 {
 	return frequency;
 }

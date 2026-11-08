@@ -1,5 +1,5 @@
 #include <arch/i386/interrupt/idt.h>
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 struct idt_entry idt[256];
 struct idtr idt_ptr;

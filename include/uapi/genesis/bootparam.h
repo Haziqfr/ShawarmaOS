@@ -2,7 +2,7 @@
 #define UAPI_GENESIS_BOOTPARAM_H
 
 // Includes
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 // Macros
 #define E820_MAX_ENTRIES 128

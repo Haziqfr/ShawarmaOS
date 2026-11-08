@@ -2,7 +2,7 @@
 #define ARCH_I386_INTERRUPT_PIC_H
 
 // Includes
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 // Macro Constants
 #define MASTER_PIC_COMMAND 0x20

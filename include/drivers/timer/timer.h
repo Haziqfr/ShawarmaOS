@@ -2,7 +2,7 @@
 #define DRIVERS_TIMER_TIMER_H
 
 // Includes
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 // Function Prototypes
 void timer_init(uint32_t hz);

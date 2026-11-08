@@ -2,7 +2,7 @@
 #define MM_VMM_H
 
 #include <mm/mm.h>
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 // Flags
 typedef enum {

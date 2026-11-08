@@ -1,5 +1,5 @@
 #include <drivers/video/vga.h>
-#include <arch/i386/stdint.h>
+#include <stdint.h>
 
 static uint16_t *vga = (uint16_t *)0xC00B8000;
 
